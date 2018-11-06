@@ -1,0 +1,36 @@
+name: Tamara
+allergies:
+  Vegetables:
+    - Onion: A reasonable amount of onion powder is fine.
+    - Spinach
+    - Sweet Potato
+    - Corn
+  Meat:
+    - Pork
+    - Beef
+    - Lamb
+    - Venison
+    - Turkey
+  Grains:
+    - Wheat
+    - Corn: Consider replacing corn starch with tapioca flour.
+    - Oats
+    - Spelt
+  Dairy:
+    - Milk: Cheese is fine.
+    - Yogurt
+  Spices:
+    - Nutmeg
+    - Cinnamon
+    - Paprika
+    - Mustard
+  Legumes:
+    - Walnuts
+    - Beans
+    - Soy
+  Fruits:
+    - Cherry
+    - Apricot
+    - Coconut
+  Other:
+    - "Blue #1"
