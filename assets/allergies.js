@@ -5,8 +5,8 @@ fetch('allergies.yml').then(function(resp) {
 });
 
 iconMap = {
-	meat: "chicken",
-	vegetable: "vegetable",
+	meat: "steak",
+	vegetable: "corn",
 	grain: "flour",
 	dairy: "cheese",
 	spice: "saltpepper",
