@@ -1,7 +1,7 @@
 name: Tamara
 allergies:
   Vegetables:
-    - Onion: A reasonable amount of onion powder is fine.
+    - Onion: A small amount of onion powder is fine.
     - Spinach
     - Sweet Potato
     - Corn
@@ -20,17 +20,18 @@ allergies:
     - Milk: Cheese is fine.
     - Yogurt
   Spices:
-    - Nutmeg
-    - Cinnamon
-    - Paprika
-    - Mustard
+    - Nutmeg: A sprinkle here or there is fine.
+    - Cinnamon: A sprinkle here or there is fine.
+    - Paprika: A sprinkle here or there is fine.
+    - Mustard: Can tolerate none.
   Legumes:
     - Walnuts
-    - Beans
-    - Soy
+    - Beans: Peas and green beans are fine.
+    - Soy: Consider using cooked coconut aminos, and soy lecithin is fine.
   Fruits:
     - Cherry
     - Apricot
-    - Coconut
+    - Coconut: Can tolerate small amounts of cooked coconut aminos.
   Other:
-    - "Blue #1"
+    - "Blue #1": Usually found in marshmallows.
+    - Alcohol
