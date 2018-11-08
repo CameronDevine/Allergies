@@ -1,6 +1,9 @@
+var data;
+
 fetch('allergies.yml').then(function(resp) {
-	resp.text().then(function(data) {
-		startApp(jsyaml.safeLoad(data));
+	resp.text().then(function(yaml) {
+		data = jsyaml.safeLoad(yaml);
+		startApp(yaml);
 	});
 });
 
@@ -76,12 +79,40 @@ Vue.component('card', {
 	`
 });
 
-function startApp(data) {
-	const app = new Vue({
+var index;
+var app;
+
+function startApp(yaml) {
+	index = elasticlunr(function () {
+		this.addField('category');
+		this.addField('allergies');
+		this.setRef('category');
+	});
+	for (category in data.allergies) {
+		doc = {
+			category: category,
+			allergies: ''
+		};
+		data.allergies[category].forEach(function(allergy) {
+			if (typeof allergy === 'string' || allergy instanceof String) {
+				doc.allergies += allergy + ' ';
+			} else {
+				doc.allergies += Object.keys(allergy)[0] + ' ' + Object.values(allergy)[0] + ' ';
+			}
+		});
+		index.addDoc(doc);
+	}
+	app = new Vue({
 		el: "#app",
-		data: data,
+		data: jsyaml.safeLoad(yaml),
 		mounted() {
 			start_fit();
+			search_el = document.getElementById('search-field');
+			search_el.addEventListener('keydown', search);
+			search_el.addEventListener('change', search);
+		},
+		watch: {
+			allergies: start_fit
 		},
 		template: `
 			<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
@@ -90,11 +121,11 @@ function startApp(data) {
 						<span class="mdl-layout-title">{{name}}'s Allergies</span>
 						<div class="mdl-layout-spacer"></div>
 						<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right">
-							<label style="display:none" class="mdl-button mdl-js-button mdl-button--icon" for="fixed-header-drawer-exp">
+							<label class="mdl-button mdl-js-button mdl-button--icon" for="search-field">
 								<i class="material-icons">search</i>
 							</label>
-							<div styte="display:none" class="mdl-textfield__expandable-holder">
-								<input class="mdl-textfield__input" type="text" name="sample" id="fixed-header-drawer-exp">
+							<div class="mdl-textfield__expandable-holder">
+								<input class="mdl-textfield__input" type="text" id="search-field">
 							</div>
 						</div>
 					</div>
@@ -121,6 +152,22 @@ function startApp(data) {
 	});
 }
 
+function search() {
+	setTimeout(function() {
+		query = document.getElementById('search-field').value;
+		if (query.length == 0) {
+			app.allergies = data.allergies;
+		} else {
+			res = index.search(query, {expand: true});
+			allergies = {};
+			res.forEach(function(el) {
+				allergies[el.ref] = data.allergies[el.ref];
+			});
+			app.allergies = allergies;
+		}
+	}, 0);
+}	
+
 cardWidth = 350;
 
 function fit() {
@@ -136,6 +183,15 @@ function fit() {
 			cards.style.height = clientHeight + 100;
 		}
 		setTimeout(fit, 0);
+	} else {
+		maxChildHeight = 0;
+		Array.prototype.slice.call(cards.children).forEach(function(el) {
+			maxChildHeight = Math.max(el.clientHeight, maxChildHeight);
+		});
+		if (clientHeight <= maxChildHeight + 20) {
+			cards.style.height = clientHeight + 100;
+			setTimeout(fit, 0);
+		}
 	}
 }
 
