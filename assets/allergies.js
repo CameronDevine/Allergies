@@ -86,17 +86,19 @@ function startApp(data) {
 					<div class="mdl-layout__header-row">
 						<span class="mdl-layout-title">{{name}}'s Allergies</span>
 						<div class="mdl-layout-spacer"></div>
-						<span class="mdl-chip mdl-chip--contact mdl-chip--deletable">
-							<i class="mdl-chip__action material-icons">search</i>
-							<div class="mdl-chip__text">
-								<input class="mdl-textfield__input" type="text" id="search" autocomplete="off">
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right">
+							<label class="mdl-button mdl-js-button mdl-button--icon" for="fixed-header-drawer-exp">
+								<i class="material-icons">search</i>
+							</label>
+							<div class="mdl-textfield__expandable-holder">
+								<input class="mdl-textfield__input" type="text" name="sample"
+							id="fixed-header-drawer-exp">
 							</div>
-							<a href="#" class="mdl-chip__action"><i class="material-icons">cancel</i></a>
-						</span>
+						</div>
 					</div>
 				</header>
 				<main class="mdl-layout__content">
-					<div class="cards">
+					<div class="cards" id="cards">
 						<card v-for="(allergy, category) in allergies" v-bind:category="category" v-bind:allergies="allergy" />
 					</div>
 				</main>
@@ -116,3 +118,34 @@ function startApp(data) {
 		`
 	});
 }
+
+cardWidth = 350;
+
+function fit() {
+	cards = document.getElementById('cards');
+	scrollWidth = cards.scrollWidth / cardWidth;
+	clientWidth = cards.clientWidth / cardWidth;
+	clientHeight = cards.clientHeight;
+	overflowWidth = 2 * (scrollWidth - clientWidth);
+	if(overflowWidth > 0) {
+		if (overflowWidth > 1) {
+			cards.style.height = Math.min(clientHeight * Math.floor(overflowWidth) / Math.floor(clientWidth), 2000) + clientHeight;
+		} else {
+			cards.style.height = clientHeight + 100;
+		}
+		setTimeout(fit, 0);
+	}
+}
+
+function start_fit() {
+	cards = document.getElementById('cards');
+	if (Math.floor(cards.scrollWidth) <= 2 * cardWidth) {
+		cards.style.height = undefined;
+	} else {
+		cards.style.height = 100;
+		setTimeout(fit, 0);
+	}
+}
+
+window.onload = start_fit;
+window.onresize = start_fit;
