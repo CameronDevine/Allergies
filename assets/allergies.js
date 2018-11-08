@@ -80,6 +80,9 @@ function startApp(data) {
 	const app = new Vue({
 		el: "#app",
 		data: data,
+		mounted() {
+			start_fit();
+		},
 		template: `
 			<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 				<header class="mdl-layout__header">
@@ -146,5 +149,4 @@ function start_fit() {
 	}
 }
 
-window.onload = start_fit;
 window.onresize = start_fit;
