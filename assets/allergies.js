@@ -1,22 +1,9 @@
-var data;
-
 fetch('allergies.yml').then(function(resp) {
 	resp.text().then(function(yaml) {
 		data = jsyaml.safeLoad(yaml);
 		startApp(yaml);
 	});
 });
-
-iconMap = {
-	meat: "steak",
-	vegetable: "corn",
-	grain: "flour",
-	dairy: "cheese",
-	spice: "saltpepper",
-	legume: "nuts",
-	fruit: "orange",
-	other: "sauce"
-};
 
 Vue.component('list-item', {
 	props: ['allergy', 'icon'],
@@ -55,6 +42,16 @@ Vue.component('card', {
 	props: ['category', 'allergies'],
 	computed: {
 		icon() {
+			iconMap = {
+				meat: "steak",
+				vegetable: "corn",
+				grain: "flour",
+				dairy: "cheese",
+				spice: "saltpepper",
+				legume: "nuts",
+				fruit: "orange",
+				other: "sauce"
+			};
 			category = this.category.toLowerCase();
 			if (category.charAt(category.length - 1) == 's') {
 				category = category.slice(0, category.length - 1);
@@ -79,40 +76,95 @@ Vue.component('card', {
 	`
 });
 
-var index;
-var app;
-
 function startApp(yaml) {
-	index = elasticlunr(function () {
-		this.addField('category');
-		this.addField('allergies');
-		this.setRef('category');
-	});
-	for (category in data.allergies) {
-		doc = {
-			category: category,
-			allergies: ''
-		};
-		data.allergies[category].forEach(function(allergy) {
-			if (typeof allergy === 'string' || allergy instanceof String) {
-				doc.allergies += allergy + ' ';
-			} else {
-				doc.allergies += Object.keys(allergy)[0] + ' ' + Object.values(allergy)[0] + ' ';
-			}
-		});
-		index.addDoc(doc);
-	}
-	app = new Vue({
+	new Vue({
 		el: "#app",
 		data: jsyaml.safeLoad(yaml),
 		mounted() {
-			start_fit();
+			this.start_fit();
 			search_el = document.getElementById('search-field');
-			search_el.addEventListener('keydown', search);
-			search_el.addEventListener('change', search);
+			search_el.addEventListener('keydown', this.search);
+			search_el.addEventListener('change', this.search);
+			this.cardWidth = document.getElementsByClassName('card')[0].clientWidth;
+		},
+		created() {
+			window.onresize = this.fit;
+			this.comp = jsyaml.safeLoad(yaml).allergies;
+			this.index = elasticlunr(function () {
+				this.addField('category');
+				this.addField('allergies');
+				this.setRef('category');
+			});
+			for (category in this.allergies) {
+				doc = {
+					category: category,
+					allergies: ''
+				};
+				this.allergies[category].forEach(function(allergy) {
+					if (typeof allergy === 'string' || allergy instanceof String) {
+						doc.allergies += allergy + ' ';
+					} else {
+						doc.allergies += Object.keys(allergy)[0] + ' ' + Object.values(allergy)[0] + ' ';
+					}
+				});
+				this.index.addDoc(doc);
+			}
+		},
+		methods: {
+			search: function() {
+				parent = this;
+				setTimeout(function() {
+					query = document.getElementById('search-field').value;
+					if (query.length == 0) {
+						parent.allergies = parent.comp;
+					} else {
+						res = parent.index.search(query, {expand: true});
+						allergies = {};
+						res.forEach(function(el) {
+							allergies[el.ref] = parent.comp[el.ref];
+						});
+						parent.allergies = allergies;
+					}
+				}, 0);
+			},
+			start_fit: function() {
+				cards = document.getElementById('cards');
+				if (Math.floor(cards.scrollWidth) <= 2 * this.cardWidth) {
+					cards.style.height = undefined;
+				} else {
+					cards.style.height = 100;
+					setTimeout(this.fit, 0);
+				}
+			},
+			fit: function() {
+				cards = document.getElementById('cards');
+				scrollWidth = cards.scrollWidth / this.cardWidth;
+				clientWidth = cards.clientWidth / this.cardWidth;
+				clientHeight = cards.clientHeight;
+				overflowWidth = 2 * (scrollWidth - clientWidth);
+				if(overflowWidth > 0) {
+					if (overflowWidth > 1) {
+						cards.style.height = Math.min(clientHeight * Math.floor(overflowWidth) / Math.floor(clientWidth), 2000) + clientHeight;
+					} else {
+						cards.style.height = clientHeight + 100;
+					}
+					setTimeout(this.fit, 0);
+				} else {
+					maxChildHeight = 0;
+					Array.prototype.slice.call(cards.children).forEach(function(el) {
+						maxChildHeight = Math.max(el.clientHeight, maxChildHeight);
+					});
+					if (clientHeight <= maxChildHeight + 20) {
+						cards.style.height = clientHeight + 100;
+						setTimeout(this.fit, 0);
+					}
+				}
+			}
 		},
 		watch: {
-			allergies: start_fit
+			allergies: function() {
+				this.start_fit();
+			}
 		},
 		template: `
 			<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
@@ -151,58 +203,3 @@ function startApp(yaml) {
 		`
 	});
 }
-
-function search() {
-	setTimeout(function() {
-		query = document.getElementById('search-field').value;
-		if (query.length == 0) {
-			app.allergies = data.allergies;
-		} else {
-			res = index.search(query, {expand: true});
-			allergies = {};
-			res.forEach(function(el) {
-				allergies[el.ref] = data.allergies[el.ref];
-			});
-			app.allergies = allergies;
-		}
-	}, 0);
-}	
-
-cardWidth = 350;
-
-function fit() {
-	cards = document.getElementById('cards');
-	scrollWidth = cards.scrollWidth / cardWidth;
-	clientWidth = cards.clientWidth / cardWidth;
-	clientHeight = cards.clientHeight;
-	overflowWidth = 2 * (scrollWidth - clientWidth);
-	if(overflowWidth > 0) {
-		if (overflowWidth > 1) {
-			cards.style.height = Math.min(clientHeight * Math.floor(overflowWidth) / Math.floor(clientWidth), 2000) + clientHeight;
-		} else {
-			cards.style.height = clientHeight + 100;
-		}
-		setTimeout(fit, 0);
-	} else {
-		maxChildHeight = 0;
-		Array.prototype.slice.call(cards.children).forEach(function(el) {
-			maxChildHeight = Math.max(el.clientHeight, maxChildHeight);
-		});
-		if (clientHeight <= maxChildHeight + 20) {
-			cards.style.height = clientHeight + 100;
-			setTimeout(fit, 0);
-		}
-	}
-}
-
-function start_fit() {
-	cards = document.getElementById('cards');
-	if (Math.floor(cards.scrollWidth) <= 2 * cardWidth) {
-		cards.style.height = undefined;
-	} else {
-		cards.style.height = 100;
-		setTimeout(fit, 0);
-	}
-}
-
-window.onresize = start_fit;
