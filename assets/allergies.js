@@ -88,7 +88,7 @@ function startApp(yaml) {
 			this.cardWidth = document.getElementsByClassName('card')[0].clientWidth;
 		},
 		created() {
-			window.onresize = this.fit;
+			window.onresize = this.start_fit;
 			this.comp = jsyaml.safeLoad(yaml).allergies;
 			this.index = elasticlunr(function () {
 				this.addField('category');
