@@ -166,6 +166,11 @@ function startApp(yaml) {
 				this.start_fit();
 			}
 		},
+		updated: function() {
+			this.$nextTick(function () {
+				componentHandler.upgradeAllRegistered();
+			})
+		},
 		template: `
 			<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 				<header class="mdl-layout__header">
