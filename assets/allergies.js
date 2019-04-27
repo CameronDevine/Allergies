@@ -15,7 +15,7 @@ Vue.component('list-item', {
 			return Object.keys(this.allergy)[0]
 		},
 		extra() {
-			return Object.values(this.allergy)[0]
+			return this.allergy[Object.keys(this.allergy)[0]]
 		},
 		img() {
 			return this.icon
@@ -104,7 +104,7 @@ function startApp(yaml) {
 					if (typeof allergy === 'string' || allergy instanceof String) {
 						doc.allergies += allergy + ' ';
 					} else {
-						doc.allergies += Object.keys(allergy)[0] + ' ' + Object.values(allergy)[0] + ' ';
+						doc.allergies += Object.keys(allergy)[0] + ' ' + allergy[Object.keys(allergy)[0]] + ' ';
 					}
 				});
 				this.index.addDoc(doc);
