@@ -86,6 +86,9 @@ function startApp(yaml) {
 			search_el.addEventListener('keydown', this.search);
 			search_el.addEventListener('change', this.search);
 			this.cardWidth = document.getElementsByClassName('card')[0].clientWidth;
+			this.$nextTick(function () {
+				componentHandler.upgradeAllRegistered();
+			})
 		},
 		created() {
 			window.onresize = this.start_fit;
@@ -165,11 +168,6 @@ function startApp(yaml) {
 			allergies: function() {
 				this.start_fit();
 			}
-		},
-		updated: function() {
-			this.$nextTick(function () {
-				componentHandler.upgradeAllRegistered();
-			})
 		},
 		template: `
 			<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
