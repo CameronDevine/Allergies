@@ -4,7 +4,7 @@ allergies:
     - Onion: Cooked scallions and a small amount of onion powder are fine.
     - Spinach
     - Sweet Potato
-    - Corn
+    - Corn: Including corn starch and corn syrup.
   Meat:
     - Pork
     - Beef
@@ -13,7 +13,7 @@ allergies:
     - Turkey
   Grains:
     - Wheat
-    - Corn: Including corn starch and syrup. Consider replacing corn starch with tapioca flour.
+    - Corn: Consider replacing corn starch with tapioca flour.
     - Oats
     - Spelt
   Dairy:
